@@ -1,45 +1,55 @@
-name: Build and Push to Docker Hub
+name: Docker Matrix Build
 
 on:
   push:
-    branches:
+    branches: 
       - main
   pull_request:
     branches:
       - main
 
-jobs:
-  build:
-    name: Build ${{ matrix.image }} Image
-    runs-on: ${{ matrix.runner }}
+  workflow_dispatch:
 
+jobs:
+  build-and-push:
     strategy:
       matrix:
         include:
-          - image: linux
-            runner: ubuntu-latest
-          - image: windows
-            runner: windows-latest
+          - name: "linux"
+            os: ubuntu-latest
+            dockerfile: ./linux/Dockerfile
+            image_tag: yuzulator/linux:latest
+          - name: "windows"
+            os: windows-latest
+            dockerfile: ./windows/Dockerfile
+            image_tag: yuzulator/windows:latest
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout source
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx (Linux only)
-        if: matrix.image == 'linux'
+      - name: Set up Docker Buildx
+        if: runner.os == 'Linux'
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub (on main push only)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - name: Log in to DockerHub
+        if: runner.os == 'Linux'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and (conditionally) Push ${{ matrix.image }}
+      - name: Build and push Docker image
+        if: runner.os == 'Linux'
         uses: docker/build-push-action@v5
         with:
-          context: ./${{ matrix.image }}
-          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-          tags: yuzulator/azure-pipelines-docker-agent:${{ matrix.image }}
-          platforms: ${{ matrix.image == 'linux' && 'linux/amd64' || 'windows/amd64' }}
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ matrix.image_tag }}
+
+      - name: Skip Windows image (placeholder)
+        if: runner.os == 'Windows'
+        run: echo "Docker not available on GitHub-hosted Windows runners. Use a self-hosted runner to build Windows containers."
