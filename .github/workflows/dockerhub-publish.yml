@@ -23,8 +23,8 @@ jobs:
             os: windows-latest
             dockerfile: ./windows/Dockerfile
             image: windows
-            #agent_version:
-            #- 4.258.1
+            agent_version:
+            - 4.258.1
 
     runs-on: ${{ matrix.os }}
 
@@ -50,7 +50,7 @@ jobs:
           context: ./linux
           file: ${{ matrix.dockerfile }}
           push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-          tags: yuzulator/azure-pipelines-docker-agent:${{ matrix.image }}
+          tags: yuzulator/azure-pipelines-docker-agent:${{ matrix.image }}-${{ matrix.agent_version }}
           #build-args: |
             #AGENT_VERSION=${{ matrix.agent_version }}
 
