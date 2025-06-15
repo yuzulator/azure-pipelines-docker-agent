@@ -4,27 +4,42 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  build:
+    name: Build ${{ matrix.image }} Image
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      matrix:
+        include:
+          - image: linux
+            runner: ubuntu-latest
+          - image: windows
+            runner: windows-latest
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
+      - name: Set up Docker Buildx (Linux only)
+        if: matrix.image == 'linux'
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
+      - name: Log in to Docker Hub (on main push only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push ${{ matrix.image }}
+      - name: Build and (conditionally) Push ${{ matrix.image }}
         uses: docker/build-push-action@v5
         with:
           context: ./${{ matrix.image }}
-          push: ${{ github.ref == 'refs/heads/main' }}
+          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
           tags: yuzulator/azure-pipelines-docker-agent:${{ matrix.image }}
+          platforms: ${{ matrix.image == 'linux' && 'linux/amd64' || 'windows/amd64' }}
