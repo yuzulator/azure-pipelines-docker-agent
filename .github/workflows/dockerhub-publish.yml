@@ -45,7 +45,7 @@ jobs:
         if: runner.os == 'Linux'
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./linux
           file: ${{ matrix.dockerfile }}
           push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
           tags: yuzulator/azure-pipelines-docker-agent:${{ matrix.image }}
