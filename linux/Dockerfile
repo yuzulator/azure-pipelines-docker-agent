@@ -21,7 +21,11 @@ USER azure
 WORKDIR /azagent
 
 # Download and extract the agent
-RUN wget https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz && \
+# RUN wget https://vstsagentpackage.azureedge.net/agent/${AGENT_VERSION}/vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz && \
+#     tar zxvf vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz && \
+#     rm vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz
+
+RUN wget https://github.com/microsoft/azure-pipelines-agent/releases/download/v${AGENT_VERSION}/vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz && \
     tar zxvf vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz && \
     rm vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz
 
