@@ -17,7 +17,7 @@ RUN apt-get update && \
     apt-get clean
 
 RUN useradd -m azure && mkdir -p /azagent && chown azure /azagent
-USER azure
+USER root
 WORKDIR /azagent
 
 # Download and extract the agent
@@ -30,6 +30,8 @@ RUN wget https://download.agent.dev.azure.com/agent/${AGENT_VERSION}/vsts-agent-
     rm vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz
 
 COPY start.sh .
-RUN chmod +x start.sh
+RUN chmod +x start.sh && chown azure:azure start.sh
+
+USER azure
 
 ENTRYPOINT ["./start.sh"]
