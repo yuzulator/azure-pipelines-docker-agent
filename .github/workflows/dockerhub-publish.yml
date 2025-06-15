@@ -1,30 +1,59 @@
-name: Build and Push to Docker Hub
+name: Docker Matrix Build
 
 on:
   push:
+    branches: 
+      - main
+  pull_request:
     branches:
       - main
 
+  workflow_dispatch:
+
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: "linux"
+            os: ubuntu-latest
+            dockerfile: ./linux/Dockerfile
+            image: linux
+          - name: "windows"
+            os: windows-latest
+            dockerfile: ./windows/Dockerfile
+            image: windows
+            #agent_version:
+            #- 4.258.1
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout source
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
+        if: runner.os == 'Linux'
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
+      - name: Log in to DockerHub
+        if: runner.os == 'Linux'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and Push ${{ matrix.image }}
+      - name: Build and push Docker image
+        if: runner.os == 'Linux'
         uses: docker/build-push-action@v5
         with:
-          context: ./${{ matrix.image }}
-          push: ${{ github.ref == 'refs/heads/main' }}
+          context: ./linux
+          file: ${{ matrix.dockerfile }}
+          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
           tags: yuzulator/azure-pipelines-docker-agent:${{ matrix.image }}
+          #build-args: |
+            #AGENT_VERSION=${{ matrix.agent_version }}
+
+      - name: Skip Windows image (placeholder)
+        if: runner.os == 'Windows'
+        run: echo "Docker not available on GitHub-hosted Windows runners. Use a self-hosted runner to build Windows containers."
