@@ -23,8 +23,7 @@ jobs:
             os: windows-latest
             dockerfile: ./windows/Dockerfile
             image: windows
-            agent_version:
-            - 4.258.1
+            agent_version: 4.258.1
 
     runs-on: ${{ matrix.os }}
 
