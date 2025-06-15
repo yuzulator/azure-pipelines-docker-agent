@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-ENV AGENT_VERSION=3.236.1
+ENV AGENT_VERSION=4.258.1
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
@@ -25,7 +25,7 @@ WORKDIR /azagent
 #     tar zxvf vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz && \
 #     rm vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz
 
-RUN wget https://github.com/microsoft/azure-pipelines-agent/releases/download/v${AGENT_VERSION}/vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz && \
+RUN wget https://download.agent.dev.azure.com/agent/${AGENT_VERSION}/vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz && \
     tar zxvf vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz && \
     rm vsts-agent-linux-x64-${AGENT_VERSION}.tar.gz
 

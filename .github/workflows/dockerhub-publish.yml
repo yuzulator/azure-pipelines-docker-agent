@@ -23,6 +23,8 @@ jobs:
             os: windows-latest
             dockerfile: ./windows/Dockerfile
             image: windows
+            #agent_version:
+            #- 4.258.1
 
     runs-on: ${{ matrix.os }}
 
@@ -49,6 +51,8 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
           tags: yuzulator/azure-pipelines-docker-agent:${{ matrix.image }}
+          #build-args: |
+            #AGENT_VERSION=${{ matrix.agent_version }}
 
       - name: Skip Windows image (placeholder)
         if: runner.os == 'Windows'
