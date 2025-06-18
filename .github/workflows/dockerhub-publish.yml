@@ -19,11 +19,11 @@ jobs:
             os: ubuntu-latest
             dockerfile: ./linux/Dockerfile
             image: linux
+            agent_version: 4.258.1
           - name: "windows"
             os: windows-latest
             dockerfile: ./windows/Dockerfile
             image: windows
-            agent_version: 4.258.1
 
     runs-on: ${{ matrix.os }}
 
